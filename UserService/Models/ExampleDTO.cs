@@ -1,4 +1,4 @@
-﻿namespace ServiceTemplate.Models
+﻿namespace UserService.Models
 {
     public class ExampleDTO
     {

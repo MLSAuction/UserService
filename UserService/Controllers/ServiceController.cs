@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ServiceTemplate.Repositories;
+using UserService.Repositories;
 
-namespace ServiceTemplate.Controllers
+namespace UserService.Controllers
 {
     public class ServiceController : Controller
     {

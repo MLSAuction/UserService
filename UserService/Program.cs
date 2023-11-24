@@ -1,4 +1,4 @@
-using ServiceTemplate.Repositories;
+using UserService.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 

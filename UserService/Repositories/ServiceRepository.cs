@@ -1,4 +1,4 @@
-﻿namespace ServiceTemplate.Repositories
+﻿namespace UserService.Repositories
 {
     public class ServiceRepository
     {
