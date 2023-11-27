@@ -7,22 +7,15 @@ namespace UserService.Controllers
     {
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
-        private readonly ServiceRepository _repository;
+        private readonly UserRepository _repository;
 
-        UserController (ILogger logger, IConfiguration configuration, ServiceRepository repository)
+        UserController (ILogger logger, IConfiguration configuration, UserRepository repository)
         {
             _logger = logger;
             _configuration = configuration;
             _repository = repository;
         }
 
-        [HttpGet]
-
-        [HttpPost]
-
-        [HttpPut]
-
-        [HttpDelete]
 
 
     }

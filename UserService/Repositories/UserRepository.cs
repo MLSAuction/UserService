@@ -1,11 +1,14 @@
-﻿namespace UserService.Repositories
+﻿using Microsoft.AspNetCore.Mvc.Formatters;
+
+
+namespace UserService.Repositories
 {
-    public class ServiceRepository
+    public class UserRepository
     {
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
 
-        ServiceRepository (ILogger logger, IConfiguration configuration)
+        public UserRepository (ILogger<UserRepository>logger, IConfiguration configuration)
         {
             _logger = logger;
             _configuration = configuration;
