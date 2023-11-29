@@ -1,11 +1,17 @@
-using ServiceTemplate.Repositories;
+
+using UserService.Repositories;
+using UserService.Repositories.DBContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddScoped<ServiceRepository>();
+builder.Services.AddScoped<MongoDBContext>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddMemoryCache(); 
+
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
