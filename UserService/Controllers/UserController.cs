@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using UserService.Repositories;
 using UserService.Models;
 
@@ -11,34 +10,40 @@ namespace UserService.Controllers
     {
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
-        private readonly IMemoryCache _cache;
         private readonly IUserRepository _userService;
 
-        public UserController(ILogger<UserController> logger, IConfiguration configuration, IUserRepository userRepository, IMemoryCache cache)
+        public UserController(ILogger<UserController> logger, IConfiguration configuration, IUserRepository userRepository)
         {
             _logger = logger;
             _configuration = configuration;
             _userService = userRepository;
-            _cache = cache;
+        }
+
+        [HttpGet]
+        public IActionResult GetAllUsers()
+        {
+            var users = _userService.GetAllUsers();
+
+            if (users == null || !users.Any())
+            {
+                return NotFound(); // Return 404 if no users are found
+            }
+
+            return Ok(users);
         }
 
         [HttpGet("{id}")]
         public IActionResult GetUser(int id)
         {
-            UserDTO user = GetUserFromCache(id);
+
+            UserDTO user = _userService.GetUser(id);
 
             if (user == null)
             {
-                user = _userService.GetUser(id);
-
-                if (user == null)
-                {
-                    return NotFound(); // Return 404 if user is not found
-                }
-
-                _logger.LogInformation($"User {user.UserId}, {user.FirstName} added to cache");
-                SetUserInCache(user);
+                return NotFound(); // Return 404 if user is not found
             }
+
+            _logger.LogInformation($"User {user.UserId}, {user.FirstName} - Retrived ");
 
             return Ok(user);
         }
@@ -47,10 +52,17 @@ namespace UserService.Controllers
         public IActionResult AddUser([FromBody] UserDTO user)
         {
             if (user == null)
-            {   
+            {
                 //If NO "Whole-data". Example: If no texting data in the JSON. 
                 return BadRequest("Invalid user data");
             }
+
+            //Exception for email
+            if (string.IsNullOrWhiteSpace(user.Email) || !user.Email.Contains("@"))
+            {
+                return BadRequest("Invalid email format");
+            }
+            //
 
             if (user.UserId == null)
             {
@@ -65,9 +77,9 @@ namespace UserService.Controllers
             }
 
             _userService.AddUser(user);
-            SetUserInCache(user);
 
             return CreatedAtAction(nameof(GetUser), new { id = user.UserId }, user);
+
         }
 
         [HttpPut("{id}")]
@@ -103,26 +115,7 @@ namespace UserService.Controllers
             return Ok("User deleted successfully");
         }
 
-        private UserDTO GetUserFromCache(int userId)
-        {
-            if (_cache.TryGetValue(userId, out UserDTO user))
-            {
-                return user;
-            }
-
-            return null;
-        }
-
-        private void SetUserInCache(UserDTO user)
-        {
-            var cacheExpiryOptions = new MemoryCacheEntryOptions
-            {
-                AbsoluteExpiration = DateTime.Now.AddHours(1),
-                SlidingExpiration = TimeSpan.FromMinutes(10),
-                Priority = CacheItemPriority.High
-            };
-            _cache.Set(user.UserId, user, cacheExpiryOptions);
-        }
+       
 
         private int GenerateUniqueId()
         {

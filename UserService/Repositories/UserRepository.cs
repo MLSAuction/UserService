@@ -20,7 +20,12 @@ namespace UserService.Repositories
 
         }
 
-        
+
+        public IEnumerable<UserDTO> GetAllUsers()
+        {
+            return _db.Find(_ => true).ToList();
+        }
+
         public UserDTO GetUser(int id)
         {
             // Use MongoDB's LINQ methods to query for a user by ID

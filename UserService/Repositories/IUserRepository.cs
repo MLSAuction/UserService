@@ -4,7 +4,7 @@ namespace UserService.Repositories
 {
     public interface IUserRepository
     {
-
+        IEnumerable<UserDTO> GetAllUsers();
         UserDTO GetUser(int id);
         void AddUser(UserDTO user);
         void UpdateUser(UserDTO user);
