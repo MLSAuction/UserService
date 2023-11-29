@@ -3,7 +3,7 @@ name: Run C# Tests
 on:
   pull_request:
     branches:
-      - dev
+      - development
 
 jobs:
   test:
