@@ -43,37 +43,28 @@ namespace UserService.Controllers
                 return NotFound(); // Return 404 if user is not found
             }
 
-            _logger.LogInformation($"User {user.UserId}, {user.FirstName} - Retrived ");
+            _logger.LogInformation($"User {user.UserId}, {user.FirstName} - Retrieved ");
 
             return Ok(user);
         }
 
         [HttpPost]
-        public IActionResult AddUser([FromBody] UserDTO user)
+        public IActionResult AddUser([FromBody] UserDTO inputUser)
         {
-            if (user == null)
-            {
-                //If NO "Whole-data". Example: If no texting data in the JSON. 
-                return BadRequest("Invalid user data");
-            }
+            UserDTO user;
 
-            //Exception for email
-            if (string.IsNullOrWhiteSpace(user.Email) || !user.Email.Contains("@"))
+            try
             {
-                return BadRequest("Invalid email format");
+                user = ValidateUser(inputUser);
             }
-            //
+            catch (ArgumentException ex)
+            {
+                return BadRequest($"Invalid user data, {ex}");
+            }
 
             if (user.UserId == null)
             {
-                //Check if there is ID 
-                user.UserId = GenerateUniqueId();
-            }
-
-            if (_userService.GetUser((int)user.UserId) != null)
-            {
-                // Handle the case where the ID already exists (e.g., generate a new ID, so it doesnt match the already exist)
-                user.UserId = GenerateUniqueId();
+                user.UserId = GenerateUniqueUserId();
             }
 
             _userService.AddUser(user);
@@ -82,17 +73,57 @@ namespace UserService.Controllers
 
         }
 
-        [HttpPut("{id}")]
-        public IActionResult EditUser(int id, [FromBody] UserDTO user)
+        private UserDTO ValidateUser(UserDTO user)
         {
+            // exception for no data
             if (user == null)
+            {
+                throw new ArgumentException("Null user data");
+            }
+
+            //Exception for email
+            if (string.IsNullOrWhiteSpace(user.Email) || !user.Email.Contains("@"))
+            {
+                throw new ArgumentException("Invalid email");
+            }
+
+            return user;
+        }
+
+        private int GenerateUniqueUserId()
+        {
+            int id = Math.Abs(Guid.NewGuid().GetHashCode());
+
+            //While loop to repeatedly check for duplicate ids in db (statistically very unlikely)
+            bool? duplicateFlag = null;
+            while (duplicateFlag != false)
+            {
+                if (_userService.GetUser(id) != null)
+                {
+                    // Handle the case where the ID already exists (e.g., generate a new ID, so it doesnt match an already existing one)
+                    id = GenerateUniqueUserId();
+                    duplicateFlag = true;
+                }
+                else
+                {
+                    duplicateFlag = false;
+                }
+            }
+
+            return id;
+        }
+
+        [HttpPut]
+        public IActionResult EditUser([FromBody] UserDTO user)
+        {
+            if (user.UserId == null)
             {
                 return BadRequest("Invalid user data");
             }
 
-            if (id != user.UserId)
+            if (_userService.GetUser((int)user.UserId) == null)
             {
-                return BadRequest("User ID in the request body does not match the route parameter");
+                return BadRequest("User ID does not exist in the database");
             }
 
             _userService.UpdateUser(user);
@@ -113,13 +144,6 @@ namespace UserService.Controllers
             _userService.DeleteUser(id);
 
             return Ok("User deleted successfully");
-        }
-
-       
-
-        private int GenerateUniqueId()
-        {
-            return Math.Abs(Guid.NewGuid().GetHashCode());
         }
     }
 }

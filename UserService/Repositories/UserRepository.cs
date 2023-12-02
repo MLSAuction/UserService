@@ -41,7 +41,8 @@ namespace UserService.Repositories
         public void UpdateUser(UserDTO user)
         {
             // Update an existing user document based on their ID
-            var filter = Builders<UserDTO>.Filter.Eq(u => u.UserId, user.UserId);
+            var filter = Builders<UserDTO>.Filter
+                                          .Eq(u => u.UserId, user.UserId);
             _db.ReplaceOne(filter, user);
         }
 
@@ -51,8 +52,5 @@ namespace UserService.Repositories
             var filter = Builders<UserDTO>.Filter.Eq(u => u.UserId, id);
             _db.DeleteOne(filter);
         }
-
-
-
     }
 }
