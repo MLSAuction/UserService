@@ -1,31 +1,30 @@
 ﻿using NUnit.Framework;
-using Moq; // Add this if you are using Moq for mocking
+using Moq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using UserService.Controllers;
 using UserService.Models;
 using UserService.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace UserServiceTests
 {
     [TestFixture]
     public class UserServiceTests
     {
-        private Mock<IUserRepository> _userRepositoryMock;
+        private Mock<IUserRepository> _userRepositoryStub;
         private UserController _userController;
 
         [SetUp]
         public void Setup()
         {
             // Vi opretter en mock for IUserRepository og IMemoryCache.
-            _userRepositoryMock = new Mock<IUserRepository>();
+            _userRepositoryStub = new Mock<IUserRepository>();
             var loggerMock = new Mock<ILogger<UserController>>();
             var configurationMock = new Mock<IConfiguration>();
 
             // Initialiser UserController med de mockede dependencies.
-            _userController = new UserController(loggerMock.Object, configurationMock.Object, _userRepositoryMock.Object);
+            _userController = new UserController(loggerMock.Object, configurationMock.Object, _userRepositoryStub.Object);
         }
 
         [Test]
@@ -38,8 +37,8 @@ namespace UserServiceTests
 
             // Opsæt mock IUserRepository til at returnere brugeren, når GetUser kaldes med det specificerede ID.
             //For at teste, at denne test virker - Kan man prøve at få den til at fejle, ved at tilføje +1 efter 'userId'
-            _userRepositoryMock.Setup(repo => repo.GetUser((int)user.UserId)).Returns(user);
-            _userRepositoryMock.Setup(repo => repo.GetUser(999)).Returns((UserDTO)null); // Nonexistent user ID
+            _userRepositoryStub.Setup(repo => repo.GetUser((int)user.UserId)).Returns(user);
+            _userRepositoryStub.Setup(repo => repo.GetUser(999)).Returns((UserDTO)null); // Nonexistent user ID
 
             // ACT -> Udfør handlingen ved at kalde GetUser-metoden på UserController med det specificerede bruger-ID.
             var result = _userController.GetUser((int)user.UserId);
@@ -72,7 +71,7 @@ namespace UserServiceTests
 
             var users = new List<UserDTO> { user1, user2 };
 
-            _userRepositoryMock.Setup(repo => repo.GetAllUsers()).Returns(users);
+            _userRepositoryStub.Setup(repo => repo.GetAllUsers()).Returns(users);
 
             //act
             var result = _userController.GetAllUsers() as OkObjectResult;
@@ -129,7 +128,7 @@ namespace UserServiceTests
             UserDTO capturedUser = null;
             bool newIdFlag = false;
 
-            _userRepositoryMock.Setup(repo => repo.AddUser(It.IsAny<UserDTO>()))
+            _userRepositoryStub.Setup(repo => repo.AddUser(It.IsAny<UserDTO>()))
                                .Callback<UserDTO>(u => capturedUser = u); // callback to capture the user, whether changed or not
 
             // act
@@ -154,9 +153,9 @@ namespace UserServiceTests
 
             UserDTO capturedUser = null;
 
-            _userRepositoryMock.Setup(repo => repo.GetUser((int)user.UserId)).Returns(user);
-            _userRepositoryMock.Setup(repo => repo.GetUser(999)).Returns((UserDTO)null); // Nonexistent user ID
-            _userRepositoryMock.Setup(repo => repo.UpdateUser(It.IsAny<UserDTO>()))
+            _userRepositoryStub.Setup(repo => repo.GetUser((int)user.UserId)).Returns(user);
+            _userRepositoryStub.Setup(repo => repo.GetUser(999)).Returns((UserDTO)null); // Nonexistent user ID
+            _userRepositoryStub.Setup(repo => repo.UpdateUser(It.IsAny<UserDTO>()))
                                                   .Callback<UserDTO>(u => capturedUser = u);
 
             var updatedUser = new UserDTO { UserId = user.UserId, FirstName = "UpdatedFirstName", LastName = "UpdatedLastName" };

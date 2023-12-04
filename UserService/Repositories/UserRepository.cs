@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Formatters;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 using UserService.Models;
 using UserService.Repositories.DBContext;
 
@@ -17,9 +16,7 @@ namespace UserService.Repositories
             _logger = logger;
             _configuration = configuration;
             _db = db.GetCollection<UserDTO>("Users"); //Fortæller at vores added-informationer(fx. nye users) kommer inde under Collection "Users" på Mongo
-
         }
-
 
         public IEnumerable<UserDTO> GetAllUsers()
         {
