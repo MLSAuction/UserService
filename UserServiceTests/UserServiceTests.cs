@@ -120,7 +120,7 @@ namespace UserServiceTests
         [Test]
         [TestCase(10, false)]
         [TestCase(null, true)]
-        public void GenerateUniqueUserIdGeneratesId (int? userId, bool expectedResult)
+        public void GenerateUniqueUserIdGeneratesId(int? userId, bool expectedResult)
         {
             // arrange
             UserDTO user = new UserDTO { UserId = userId, Email = "@" }; //email is initialized here to bypass the validation, might wanna refactor so it doesnt need to be maintained
@@ -184,5 +184,41 @@ namespace UserServiceTests
                 Assert.AreEqual("User ID does not exist in the database", badRequestResult.Value);
             }
         }
+
+        [Test]
+        [TestCase(1, true)]
+        [TestCase(999, false)]
+        public void DeleteUserReturnsResult(int userId, bool expectedResult)
+        {
+            // Arrange
+            UserDTO user = new UserDTO { UserId = userId, FirstName = "John", LastName = "Doe" };
+
+            _userRepositoryStub.Setup(repo => repo.GetUser(userId)).Returns(user);
+            _userRepositoryStub.Setup(repo => repo.GetUser(999)).Returns((UserDTO)null); // Nonexistent user ID
+            _userRepositoryStub.Setup(repo => repo.DeleteUser(userId));
+
+            // Act
+            var result = _userController.DeleteUser(userId);
+
+            // Assert
+            if (expectedResult)
+            {
+                Assert.IsInstanceOf<OkObjectResult>(result);
+                var okResult = (OkObjectResult)result;
+
+                Assert.AreEqual(200, okResult.StatusCode);
+                Assert.AreEqual("User deleted successfully", okResult.Value);
+            }
+            else
+            {
+                Assert.IsInstanceOf<NotFoundResult>(result);
+                var notFoundResult = (NotFoundResult)result;
+
+                Assert.AreEqual(404, notFoundResult.StatusCode);
+            }
+        }
+
+
+
     }
 }
