@@ -29,6 +29,11 @@ namespace UserService.Repositories
             return _db.Find(u => u.UserId == id).FirstOrDefault();
         }
 
+        public UserDTO GetUserByName(string username)
+        {
+            return _db.Find(u => u.Username == username).FirstOrDefault();
+        }
+
         public void AddUser(UserDTO user)
         {
             // Insert a new user document into the collection

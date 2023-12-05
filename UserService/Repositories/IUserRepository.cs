@@ -6,6 +6,7 @@ namespace UserService.Repositories
     {
         IEnumerable<UserDTO> GetAllUsers();
         UserDTO GetUser(int id);
+        UserDTO GetUserByName(string username);
         void AddUser(UserDTO user);
         void UpdateUser(UserDTO user);
         void DeleteUser(int id);

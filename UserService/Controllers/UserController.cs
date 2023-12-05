@@ -48,6 +48,54 @@ namespace UserService.Controllers
             return Ok(user);
         }
 
+        [HttpGet("name/{name}")]
+        public IActionResult GetUserByName(string name)
+        {
+
+            UserDTO user = _userService.GetUserByName(name);
+
+            if (user == null)
+            {
+                return NotFound(); // Return 404 if user is not found
+            }
+
+            _logger.LogInformation($"User {user.UserId}, {user.Username} - Retrieved ");
+
+            return Ok(user);
+        }
+
+        [HttpPost("register/{user}")]
+        public IActionResult RegisterUser(UserDTO user)
+        {
+            try
+            {
+                user = ValidateUser(user);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest($"Invalid user data, {ex}");
+            }
+
+            user.UserId = GenerateUniqueUserId();
+
+            _userService.AddUser(user);
+
+            return CreatedAtAction(nameof(GetUser), new { id = user.UserId }, user);
+        }
+
+        [HttpPost("login/{authdto}")]
+        public IActionResult Login([FromBody] AuthDTO authDTO)
+        {
+            UserDTO user = _userService.GetUserByName(authDTO.Username);
+
+            if (user.Username == authDTO.Username && user.Password == authDTO.Password)
+            {
+                return Ok("User authorized");
+            }
+
+            return BadRequest();
+        }
+
         [HttpPost]
         public IActionResult AddUser([FromBody] UserDTO inputUser)
         {
@@ -85,6 +133,12 @@ namespace UserService.Controllers
             if (string.IsNullOrWhiteSpace(user.Email) || !user.Email.Contains("@"))
             {
                 throw new ArgumentException("Invalid email");
+            }
+
+            //exception for duplicate usernames
+            if (_userService.GetUserByName(user.Username) != null)
+            {
+                throw new ArgumentException($"User with name {user.Username} already exists");
             }
 
             return user;
