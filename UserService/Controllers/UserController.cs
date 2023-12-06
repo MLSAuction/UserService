@@ -185,6 +185,23 @@ namespace UserService.Controllers
             return Ok("User updated successfully");
         }
 
+        [HttpPut("updatePassword")]
+        public IActionResult UpdatePassword([FromBody] int userId, string password)
+        {
+            UserDTO user = _userService.GetUser(userId);
+
+            if (user == null)
+            {
+                return BadRequest("User ID does not exist in the database");
+            }
+
+            user.Password = password;
+
+            _userService.UpdateUser(user);
+
+            return Ok("Password updated successfully");
+        }
+
         [HttpDelete("{id}")]
         public IActionResult DeleteUser(int id)
         {
