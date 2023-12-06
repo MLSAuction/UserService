@@ -218,7 +218,73 @@ namespace UserServiceTests
             }
         }
 
+        [Test]
+        [TestCase("John", true)]
+        [TestCase("Jane", false)]
+        public void GetUserValidUsernameReturnsOkResult(string username, bool expectedResult)
+        {
+            // Arrange -> Definer bruger.
+            UserDTO? user = user = new UserDTO { Username = username };
 
+            // Opsæt mock IUserRepository til at returnere brugeren, når GetUser kaldes med det specificerede ID.
+            //For at teste, at denne test virker - Kan man prøve at få den til at fejle, ved at tilføje +1 efter 'userId'
+            _userRepositoryStub.Setup(repo => repo.GetUserByName(user.Username)).Returns(user);
+            _userRepositoryStub.Setup(repo => repo.GetUserByName("Jane")).Returns((UserDTO)null); // Nonexistent user ID
+
+            // ACT -> Udfør handlingen ved at kalde GetUser-metoden på UserController med det specificerede bruger-ID.
+            var result = _userController.GetUserByName(user.Username);
+
+            //Assert
+            Assert.IsNotNull(result);
+
+            // Bekræft, at værdien af resultatet er den forventede UserDTO.
+            if (expectedResult)
+            {
+                Assert.IsInstanceOf<OkObjectResult>(result);
+                var okResult = (OkObjectResult)result;
+
+                Assert.AreEqual(200, okResult.StatusCode);
+                Assert.AreEqual(user, okResult.Value);
+            }
+            else
+            {
+                Assert.IsInstanceOf<NotFoundResult>(result);
+            }
+        }
+
+        [Test]
+        [TestCase("John", true)]
+        [TestCase("Jane", false)]
+        public void LoginReturnsOkResult(string username, bool expectedResult)
+        {
+            // Arrange -> Definer bruger.
+            UserDTO? user = user = new UserDTO { Username = username };
+
+            // Opsæt mock IUserRepository til at returnere brugeren, når GetUser kaldes med det specificerede ID.
+            //For at teste, at denne test virker - Kan man prøve at få den til at fejle, ved at tilføje +1 efter 'userId'
+            _userRepositoryStub.Setup(repo => repo.GetUserByName(user.Username)).Returns(user);
+            _userRepositoryStub.Setup(repo => repo.GetUserByName("Jane")).Returns((UserDTO)null); // Nonexistent user ID
+
+            // ACT -> Udfør handlingen ved at kalde GetUser-metoden på UserController med det specificerede bruger-ID.
+            var result = _userController.GetUserByName(user.Username);
+
+            //Assert
+            Assert.IsNotNull(result);
+
+            // Bekræft, at værdien af resultatet er den forventede UserDTO.
+            if (expectedResult)
+            {
+                Assert.IsInstanceOf<OkObjectResult>(result);
+                var okResult = (OkObjectResult)result;
+
+                Assert.AreEqual(200, okResult.StatusCode);
+                Assert.AreEqual(user, okResult.Value);
+            }
+            else
+            {
+                Assert.IsInstanceOf<NotFoundResult>(result);
+            }
+        }
 
     }
 }
