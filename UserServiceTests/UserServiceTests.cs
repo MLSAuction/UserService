@@ -30,10 +30,10 @@ namespace UserServiceTests
         [Test]
         [TestCase(1, "John", "Doe", true)]
         [TestCase(999, "Jane", "Doe", false)]
-        public void GetUserValidIdReturnsOkResult(int userId, string firstName, string lastName, bool expectedResult)
+        public void GetUserValidIdReturnsOkResult(int userId, string firstName, string surname, bool expectedResult)
         {
             // Arrange -> Definer bruger.
-            UserDTO? user = user = new UserDTO { UserId = userId, FirstName = firstName, LastName = lastName };
+            UserDTO? user = user = new UserDTO { UserId = userId, FirstName = firstName, Surname = surname };
 
             // Opsæt mock IUserRepository til at returnere brugeren, når GetUser kaldes med det specificerede ID.
             //For at teste, at denne test virker - Kan man prøve at få den til at fejle, ved at tilføje +1 efter 'userId'
@@ -63,11 +63,11 @@ namespace UserServiceTests
 
         [Test]
         [TestCase(1, "John", "Doe", 2, "Jane", "Smith")]
-        public void GetAllUsersReturnsAllUsers(int userId, string firstName, string lastName, int userId2, string firstName2, string lastName2)
+        public void GetAllUsersReturnsAllUsers(int userId, string firstName, string surname, int userId2, string firstName2, string surname2)
         {
             //arrange
-            UserDTO user1 = new UserDTO { UserId = userId, FirstName = firstName, LastName = lastName };
-            UserDTO user2 = new UserDTO { UserId = userId2, FirstName = firstName2, LastName = lastName2 };
+            UserDTO user1 = new UserDTO { UserId = userId, FirstName = firstName, Surname = surname };
+            UserDTO user2 = new UserDTO { UserId = userId2, FirstName = firstName2, Surname = surname2 };
 
             var users = new List<UserDTO> { user1, user2 };
 
@@ -146,10 +146,10 @@ namespace UserServiceTests
         [Test]
         [TestCase(1, "John", "Doe", true)]
         [TestCase(999, "Jane", "Doe", false)]
-        public void EditUserReturnsOkResult(int userId, string firstName, string lastName, bool expectedResult)
+        public void EditUserReturnsOkResult(int userId, string firstName, string surname, bool expectedResult)
         {
             // arrange
-            UserDTO? user = new UserDTO { UserId = userId, FirstName = firstName, LastName = lastName };
+            UserDTO? user = new UserDTO { UserId = userId, FirstName = firstName, Surname = surname };
 
             UserDTO capturedUser = null;
 
@@ -158,7 +158,7 @@ namespace UserServiceTests
             _userRepositoryStub.Setup(repo => repo.UpdateUser(It.IsAny<UserDTO>()))
                                                   .Callback<UserDTO>(u => capturedUser = u);
 
-            var updatedUser = new UserDTO { UserId = user.UserId, FirstName = "UpdatedFirstName", LastName = "UpdatedLastName" };
+            var updatedUser = new UserDTO { UserId = user.UserId, FirstName = "UpdatedFirstName", Surname = "UpdatedSurname" };
 
             // act
             var result = _userController.EditUser(updatedUser);
@@ -174,7 +174,7 @@ namespace UserServiceTests
 
                 Assert.AreEqual(capturedUser.UserId, user.UserId);
                 Assert.AreNotEqual(capturedUser.FirstName, user.FirstName);
-                Assert.AreNotEqual(capturedUser.LastName, user.LastName);
+                Assert.AreNotEqual(capturedUser.Surname, user.Surname);
             }
             else
             {
@@ -191,7 +191,7 @@ namespace UserServiceTests
         public void DeleteUserReturnsResult(int userId, bool expectedResult)
         {
             // Arrange
-            UserDTO user = new UserDTO { UserId = userId, FirstName = "John", LastName = "Doe" };
+            UserDTO user = new UserDTO { UserId = userId, FirstName = "John", Surname = "Doe" };
 
             _userRepositoryStub.Setup(repo => repo.GetUser(userId)).Returns(user);
             _userRepositoryStub.Setup(repo => repo.GetUser(999)).Returns((UserDTO)null); // Nonexistent user ID
