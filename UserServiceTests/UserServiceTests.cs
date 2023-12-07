@@ -252,7 +252,7 @@ namespace UserServiceTests
             }
         }
 
-        [Test]
+        [Test] // yo lav den her du glemte at reelt gøre den færdig
         [TestCase("John", true)]
         [TestCase("Jane", false)]
         public void LoginReturnsOkResult(string username, bool expectedResult)
