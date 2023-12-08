@@ -20,7 +20,7 @@ namespace UserService.Controllers
             _userService = userRepository;
         }
 
-        [HttpGet]
+        [HttpGet("getAll")]
         public IActionResult GetAllUsers()
         {
             _logger.LogInformation("Attempting to retrieve all users");
