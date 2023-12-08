@@ -253,21 +253,24 @@ namespace UserServiceTests
         }
 
         [Test]
-        [TestCase(1, "newPassword", true)] // Valid user ID and password
-        [TestCase(999, "newPassword", false)] // Invalid user ID
-        public void UpdatePasswordReturnsResult(int userId, string newPassword, bool expectedResult)
+        [TestCase(1, "oldPassword", true)] // Valid user ID and password
+        [TestCase(999, "oldPassword", false)] // Invalid user ID
+        public void UpdatePasswordReturnsResult(int userId, string password, bool expectedResult)
         {
             // Arrange
-            UserDTO user = new UserDTO { UserId = userId, Password = "oldPassword" };
+            UserDTO user = new UserDTO { UserId = userId, Password = password };
+
+            UserDTO capturedUser = new UserDTO();
 
             _userRepositoryStub.Setup(repo => repo.GetUser(userId)).Returns(user);
             _userRepositoryStub.Setup(repo => repo.GetUser(999)).Returns((UserDTO)null); // Nonexistent user ID
-            _userRepositoryStub.Setup(repo => repo.UpdateUser(It.IsAny<UserDTO>()));
+            _userRepositoryStub.Setup(repo => repo.UpdateUser(It.IsAny<UserDTO>()))
+                                                  .Callback<UserDTO>(u => capturedUser = u);
 
             // Act
-            var result = _userController.UpdatePassword(userId, newPassword);
+            var result = _userController.UpdatePassword(userId, "updatedPassword");
 
-            // Assert
+            // assert
             if (expectedResult)
             {
                 Assert.IsInstanceOf<OkObjectResult>(result);
@@ -276,7 +279,8 @@ namespace UserServiceTests
                 Assert.AreEqual(200, okResult.StatusCode);
                 Assert.AreEqual("Password updated successfully", okResult.Value);
 
-                Assert.AreEqual(newPassword, user.Password); // Ensure the password is updated
+                Assert.AreEqual(userId, capturedUser.UserId);
+                Assert.AreNotEqual(password, capturedUser.Password);
             }
             else
             {
