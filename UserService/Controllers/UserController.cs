@@ -208,7 +208,7 @@ namespace UserService.Controllers
         }
 
         [HttpPut("updatePassword")]
-        public IActionResult UpdatePassword([FromBody] int userId, string password)
+        public IActionResult UpdatePassword(int userId, string password)
         {
             _logger.LogInformation($"Attempting to update password for user ID: {userId}");
             UserDTO user = _userService.GetUser(userId);
