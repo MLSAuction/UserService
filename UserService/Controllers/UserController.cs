@@ -75,7 +75,7 @@ namespace UserService.Controllers
 
             try
             {
-                user = ValidateUser(user);
+                user = ValidateNewUser(user);
             }
             catch (ArgumentException ex)
             {
@@ -115,7 +115,7 @@ namespace UserService.Controllers
             _logger.LogInformation("Attempting to add a new user");
             try
             {
-                user = ValidateUser(inputUser);
+                user = ValidateNewUser(inputUser);
             }
             catch (ArgumentException ex)
             {
@@ -134,7 +134,7 @@ namespace UserService.Controllers
 
 
 
-        private UserDTO ValidateUser(UserDTO user)
+        private UserDTO ValidateNewUser(UserDTO user)
         {
             _logger.LogInformation("Starting user validation");
             // exception for no data
@@ -194,6 +194,13 @@ namespace UserService.Controllers
             {
                 _logger.LogWarning("Edit user failed: User ID is null");
                 return BadRequest("Invalid user data");
+            }
+
+            //Exception for invalid email
+            if (string.IsNullOrWhiteSpace(user.Email) || !user.Email.Contains("@"))
+            {
+                _logger.LogError($"Validation failed for EditUser: Invalid email for user {user.Username} and {user.Email}");
+                throw new ArgumentException("Invalid email");
             }
 
             if (_userService.GetUser((int)user.UserId) == null)

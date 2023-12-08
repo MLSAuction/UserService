@@ -90,7 +90,7 @@ namespace UserServiceTests
         [TestCase("John", "Doe.com", true)] //invalid email
         [TestCase(null, "", true)] //null user
         [TestCase("Jane", "Doe@jd.com", false)] //valid user and email
-        public void ValidateUserReturnsBadRequest(string? firstName, string email, bool expectedResult)
+        public void ValidateNewUserReturnsBadRequest(string? firstName, string email, bool expectedResult)
         {
             // arrange
             UserDTO? user;
