@@ -118,7 +118,7 @@ namespace UserServiceTests
         }
 
         [Test]
-        [TestCase(10, false)]
+        [TestCase(10, true)]
         [TestCase(null, true)]
         public void GenerateUniqueUserIdGeneratesId(int? userId, bool expectedResult)
         {

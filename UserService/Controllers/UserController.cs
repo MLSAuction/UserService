@@ -68,10 +68,11 @@ namespace UserService.Controllers
             return Ok(user);
         }
 
-        [HttpPost("register/{user}")]
-        public IActionResult RegisterUser(UserDTO user)
+        [HttpPost("register")]
+        public IActionResult RegisterUser([FromBody] UserDTO user)
         {
             _logger.LogInformation("Attempting to register a new user");
+
             try
             {
                 user = ValidateUser(user);
@@ -90,7 +91,7 @@ namespace UserService.Controllers
             return CreatedAtAction(nameof(GetUser), new { id = user.UserId }, user);
         }
 
-        [HttpPost("login/{authdto}")]
+        [HttpPost("login")]
         public IActionResult Login([FromBody] AuthDTO authDTO)
         {
             UserDTO user = _userService.GetUserByUsername(authDTO.Username);
