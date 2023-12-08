@@ -252,37 +252,38 @@ namespace UserServiceTests
             }
         }
 
-        [Test] // yo lav den her du glemte at reelt gøre den færdig
-        [TestCase("John", true)]
-        [TestCase("Jane", false)]
-        public void LoginReturnsOkResult(string username, bool expectedResult)
+        [Test]
+        [TestCase(1, "newPassword", true)] // Valid user ID and password
+        [TestCase(999, "newPassword", false)] // Invalid user ID
+        public void UpdatePasswordReturnsResult(int userId, string newPassword, bool expectedResult)
         {
-            // Arrange -> Definer bruger.
-            UserDTO? user = user = new UserDTO { Username = username };
+            // Arrange
+            UserDTO user = new UserDTO { UserId = userId, Password = "oldPassword" };
 
-            // Opsæt mock IUserRepository til at returnere brugeren, når GetUser kaldes med det specificerede ID.
-            //For at teste, at denne test virker - Kan man prøve at få den til at fejle, ved at tilføje +1 efter 'userId'
-            _userRepositoryStub.Setup(repo => repo.GetUserByName(user.Username)).Returns(user);
-            _userRepositoryStub.Setup(repo => repo.GetUserByName("Jane")).Returns((UserDTO)null); // Nonexistent user ID
+            _userRepositoryStub.Setup(repo => repo.GetUser(userId)).Returns(user);
+            _userRepositoryStub.Setup(repo => repo.GetUser(999)).Returns((UserDTO)null); // Nonexistent user ID
+            _userRepositoryStub.Setup(repo => repo.UpdateUser(It.IsAny<UserDTO>()));
 
-            // ACT -> Udfør handlingen ved at kalde GetUser-metoden på UserController med det specificerede bruger-ID.
-            var result = _userController.GetUserByName(user.Username);
+            // Act
+            var result = _userController.UpdatePassword(userId, newPassword);
 
-            //Assert
-            Assert.IsNotNull(result);
-
-            // Bekræft, at værdien af resultatet er den forventede UserDTO.
+            // Assert
             if (expectedResult)
             {
                 Assert.IsInstanceOf<OkObjectResult>(result);
                 var okResult = (OkObjectResult)result;
 
                 Assert.AreEqual(200, okResult.StatusCode);
-                Assert.AreEqual(user, okResult.Value);
+                Assert.AreEqual("Password updated successfully", okResult.Value);
+
+                Assert.AreEqual(newPassword, user.Password); // Ensure the password is updated
             }
             else
             {
-                Assert.IsInstanceOf<NotFoundResult>(result);
+                Assert.IsInstanceOf<BadRequestObjectResult>(result);
+                var badRequestResult = (BadRequestObjectResult)result;
+
+                Assert.AreEqual("User ID does not exist in the database", badRequestResult.Value);
             }
         }
 
