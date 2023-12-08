@@ -211,8 +211,8 @@ namespace UserServiceTests
             }
             else
             {
-                Assert.IsInstanceOf<NotFoundResult>(result);
-                var notFoundResult = (NotFoundResult)result;
+                Assert.IsInstanceOf<NotFoundObjectResult>(result);
+                var notFoundResult = (NotFoundObjectResult)result;
 
                 Assert.AreEqual(404, notFoundResult.StatusCode);
             }
@@ -228,11 +228,11 @@ namespace UserServiceTests
 
             // Opsæt mock IUserRepository til at returnere brugeren, når GetUser kaldes med det specificerede ID.
             //For at teste, at denne test virker - Kan man prøve at få den til at fejle, ved at tilføje +1 efter 'userId'
-            _userRepositoryStub.Setup(repo => repo.GetUserByName(user.Username)).Returns(user);
-            _userRepositoryStub.Setup(repo => repo.GetUserByName("Jane")).Returns((UserDTO)null); // Nonexistent user ID
+            _userRepositoryStub.Setup(repo => repo.GetUserByUsername(user.Username)).Returns(user);
+            _userRepositoryStub.Setup(repo => repo.GetUserByUsername("Jane")).Returns((UserDTO)null); // Nonexistent user ID
 
             // ACT -> Udfør handlingen ved at kalde GetUser-metoden på UserController med det specificerede bruger-ID.
-            var result = _userController.GetUserByName(user.Username);
+            var result = _userController.GetUserByUsername(user.Username);
 
             //Assert
             Assert.IsNotNull(result);
@@ -248,7 +248,7 @@ namespace UserServiceTests
             }
             else
             {
-                Assert.IsInstanceOf<NotFoundResult>(result);
+                Assert.IsInstanceOf<NotFoundObjectResult>(result);
             }
         }
 

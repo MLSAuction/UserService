@@ -35,7 +35,7 @@ namespace UserService.Repositories
             return user;
         }
 
-        public UserDTO GetUserByName(string username)
+        public UserDTO GetUserByUsername(string username)
         {
             _logger.LogInformation($"Fetching user with username: {username}");
             var user = _db.Find(u => u.Username == username).FirstOrDefault();

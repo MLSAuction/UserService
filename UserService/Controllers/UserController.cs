@@ -43,7 +43,7 @@ namespace UserService.Controllers
 
             if (user == null)
             {
-                _logger.LogWarning($"No users with ID: {id} found" );
+                _logger.LogWarning($"No users with ID: {id} found");
                 return NotFound(); // Return 404 if user is not found
             }
 
@@ -51,16 +51,16 @@ namespace UserService.Controllers
             return Ok(user);
         }
 
-        [HttpGet("name/{name}")]
-        public IActionResult GetUserByName(string name)
+        [HttpGet("username/{username}")]
+        public IActionResult GetUserByUsername(string username)
         {
             _logger.LogInformation("Attempting to retrieve user by name");
-            UserDTO user = _userService.GetUserByName(name);
+            UserDTO user = _userService.GetUserByUsername(username);
 
             if (user == null)
             {
-                _logger.LogWarning($"No users with name: {name} found");
-                return NotFound(); // Return 404 if user is not found
+                _logger.LogWarning($"No users with username: {username} found");
+                return NotFound($"No users with username: {username} found"); // Return 404 if user is not found
             }
 
             _logger.LogInformation($"User {user.UserId}, {user.Username} - Retrieved ");
@@ -93,7 +93,7 @@ namespace UserService.Controllers
         [HttpPost("login/{authdto}")]
         public IActionResult Login([FromBody] AuthDTO authDTO)
         {
-            UserDTO user = _userService.GetUserByName(authDTO.Username);
+            UserDTO user = _userService.GetUserByUsername(authDTO.Username);
             _logger.LogInformation($"Login attempt for user: {authDTO.Username}");
 
             if (user.Username == authDTO.Username && user.Password == authDTO.Password)
@@ -106,7 +106,8 @@ namespace UserService.Controllers
             return BadRequest();
         }
 
-        [HttpPost]
+
+        [HttpPost] 
         public IActionResult AddUser([FromBody] UserDTO inputUser)
         {
             UserDTO user;
@@ -133,6 +134,8 @@ namespace UserService.Controllers
 
         }
 
+
+
         private UserDTO ValidateUser(UserDTO user)
         {
             _logger.LogInformation("Starting user validation");
@@ -151,7 +154,7 @@ namespace UserService.Controllers
             }
 
             //exception for duplicate usernames
-            if (_userService.GetUserByName(user.Username) != null)
+            if (_userService.GetUserByUsername(user.Username) != null)
             {
                 _logger.LogError($"Validation failed: Username {user.Username} already exists");
                 throw new ArgumentException($"User with name {user.Username} already exists");
@@ -235,7 +238,7 @@ namespace UserService.Controllers
             if (user == null)
             {
                 _logger.LogWarning($"Delete user failed: No user found with ID {id}");
-                return NotFound(); // Return 404 if user is not found
+                return NotFound($"Delete user failed: No user found with ID {id}"); // Return 404 if user is not found
             }
 
             _userService.DeleteUser(id);
