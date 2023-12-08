@@ -122,10 +122,7 @@ namespace UserService.Controllers
                 return BadRequest($"Invalid user data, {ex}");
             }
 
-            if (user.UserId == null)
-            {
-                user.UserId = GenerateUniqueUserId();
-            }
+            user.UserId = GenerateUniqueUserId();
 
             _userService.AddUser(user);
 
