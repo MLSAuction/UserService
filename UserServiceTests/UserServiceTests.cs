@@ -149,7 +149,7 @@ namespace UserServiceTests
         public void EditUserReturnsOkResult(int userId, string firstName, string surname, bool expectedResult)
         {
             // arrange
-            UserDTO? user = new UserDTO { UserId = userId, FirstName = firstName, Surname = surname };
+            UserDTO? user = new UserDTO { UserId = userId, FirstName = firstName, Surname = surname, Email = "@" };
 
             UserDTO capturedUser = null;
 
@@ -158,7 +158,7 @@ namespace UserServiceTests
             _userRepositoryStub.Setup(repo => repo.UpdateUser(It.IsAny<UserDTO>()))
                                                   .Callback<UserDTO>(u => capturedUser = u);
 
-            var updatedUser = new UserDTO { UserId = user.UserId, FirstName = "UpdatedFirstName", Surname = "UpdatedSurname" };
+            var updatedUser = new UserDTO { UserId = user.UserId, FirstName = "UpdatedFirstName", Surname = "UpdatedSurname", Email = user.Email };
 
             // act
             var result = _userController.EditUser(updatedUser);
