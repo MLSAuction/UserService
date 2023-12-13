@@ -20,6 +20,10 @@ namespace UserService.Controllers
             _userService = userRepository;
         }
 
+        /// <summary>
+        /// Get all users
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("getAll")]
         public IActionResult GetAllUsers()
         {
@@ -35,6 +39,11 @@ namespace UserService.Controllers
             return Ok(users);
         }
 
+        /// <summary>
+        /// Get user by ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public IActionResult GetUser(int id)
         {
@@ -51,6 +60,11 @@ namespace UserService.Controllers
             return Ok(user);
         }
 
+        /// <summary>
+        /// Get user by username
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
         [HttpGet("username/{username}")]
         public IActionResult GetUserByUsername(string username)
         {
@@ -68,6 +82,11 @@ namespace UserService.Controllers
             return Ok(user);
         }
 
+        /// <summary>
+        /// Register user
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         [HttpPost("register")]
         public IActionResult RegisterUser([FromBody] UserDTO user)
         {
@@ -91,6 +110,11 @@ namespace UserService.Controllers
             return CreatedAtAction(nameof(GetUser), new { id = user.UserId }, user);
         }
 
+        /// <summary>
+        /// Login
+        /// </summary>
+        /// <param name="authDTO"></param>
+        /// <returns></returns>
         [HttpPost("login")]
         public IActionResult Login([FromBody] AuthDTO authDTO)
         {
@@ -107,7 +131,11 @@ namespace UserService.Controllers
             return BadRequest();
         }
 
-
+        /// <summary>
+        /// Add user
+        /// </summary>
+        /// <param name="inputUser"></param>
+        /// <returns></returns>
         [HttpPost] 
         public IActionResult AddUser([FromBody] UserDTO inputUser)
         {
@@ -133,7 +161,12 @@ namespace UserService.Controllers
         }
 
 
-
+        /// <summary>
+        /// Validate new user
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         private UserDTO ValidateNewUser(UserDTO user)
         {
             _logger.LogInformation("Starting user validation");
@@ -186,6 +219,12 @@ namespace UserService.Controllers
             return id;
         }
 
+        /// <summary>
+        /// Edit user
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         [HttpPut]
         public IActionResult EditUser([FromBody] UserDTO user)
         {
@@ -214,6 +253,12 @@ namespace UserService.Controllers
             return Ok("User updated successfully");
         }
 
+        /// <summary>
+        /// Update password
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         [HttpPut("updatePassword")]
         public IActionResult UpdatePassword(int userId, string password)
         {
@@ -234,6 +279,11 @@ namespace UserService.Controllers
             return Ok("Password updated successfully");
         }
 
+        /// <summary>
+        /// Delete user by ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         public IActionResult DeleteUser(int id)
         {
