@@ -2,6 +2,7 @@
 using UserService.Repositories;
 using UserService.Models;
 using System.Xml.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UserService.Controllers
 {
@@ -24,6 +25,7 @@ namespace UserService.Controllers
         /// Get all users
         /// </summary>
         /// <returns></returns>
+        [Authorize]
         [HttpGet("getAll")]
         public IActionResult GetAllUsers()
         {
@@ -44,6 +46,7 @@ namespace UserService.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public IActionResult GetUser(int id)
         {
@@ -65,6 +68,7 @@ namespace UserService.Controllers
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpGet("username/{username}")]
         public IActionResult GetUserByUsername(string username)
         {
@@ -87,6 +91,7 @@ namespace UserService.Controllers
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpPost("register")]
         public IActionResult RegisterUser([FromBody] UserDTO user)
         {
@@ -115,6 +120,7 @@ namespace UserService.Controllers
         /// </summary>
         /// <param name="authDTO"></param>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpPost("login")]
         public IActionResult Login([FromBody] AuthDTO authDTO)
         {
@@ -136,6 +142,7 @@ namespace UserService.Controllers
         /// </summary>
         /// <param name="inputUser"></param>
         /// <returns></returns>
+        [Authorize]
         [HttpPost] 
         public IActionResult AddUser([FromBody] UserDTO inputUser)
         {
@@ -225,6 +232,7 @@ namespace UserService.Controllers
         /// <param name="user"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
+        [Authorize]
         [HttpPut]
         public IActionResult EditUser([FromBody] UserDTO user)
         {
@@ -259,6 +267,7 @@ namespace UserService.Controllers
         /// <param name="userId"></param>
         /// <param name="password"></param>
         /// <returns></returns>
+        [Authorize]
         [HttpPut("updatePassword")]
         public IActionResult UpdatePassword(int userId, string password)
         {
@@ -284,6 +293,7 @@ namespace UserService.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [Authorize]
         [HttpDelete("{id}")]
         public IActionResult DeleteUser(int id)
         {
