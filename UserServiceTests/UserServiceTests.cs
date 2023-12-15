@@ -28,20 +28,20 @@ namespace UserServiceTests
         }
 
         [Test]
-        [TestCase(1, "John", "Doe", true)]
-        [TestCase(999, "Jane", "Doe", false)]
-        public void GetUserValidIdReturnsOkResult(int userId, string firstName, string surname, bool expectedResult)
+        [TestCase("ed0d17b8-dbc3-4080-8f4a-abe63b9679b9", "John", "Doe", true)]
+        [TestCase("ed0d17b8-dbc3-4080-8f4a-999999999999", "Jane", "Doe", false)]
+        public void GetUserValidIdReturnsOkResult(Guid userId, string firstName, string surname, bool expectedResult)
         {
             // Arrange -> Definer bruger.
-            UserDTO? user = user = new UserDTO { UserId = userId, FirstName = firstName, Surname = surname };
+            UserDTO? user = new UserDTO { UserId = userId, FirstName = firstName, Surname = surname };
 
             // Opsæt mock IUserRepository til at returnere brugeren, når GetUser kaldes med det specificerede ID.
-            //For at teste, at denne test virker - Kan man prøve at få den til at fejle, ved at tilføje +1 efter 'userId'
-            _userRepositoryStub.Setup(repo => repo.GetUser((int)user.UserId)).Returns(user);
-            _userRepositoryStub.Setup(repo => repo.GetUser(999)).Returns((UserDTO)null); // Nonexistent user ID
+            // For at teste, at denne test virker - Kan man prøve at få den til at fejle, ved at tilføje +1 efter 'userId'
+            _userRepositoryStub.Setup(repo => repo.GetUser(userId)).Returns(user);
+            _userRepositoryStub.Setup(repo => repo.GetUser(Guid.Parse("ed0d17b8-dbc3-4080-8f4a-999999999999"))).Returns((UserDTO)null); // Nonexistent user ID
 
             // ACT -> Udfør handlingen ved at kalde GetUser-metoden på UserController med det specificerede bruger-ID.
-            var result = _userController.GetUser((int)user.UserId);
+            var result = _userController.GetUser(userId);
 
             //Assert
             Assert.IsNotNull(result);
@@ -61,9 +61,11 @@ namespace UserServiceTests
             }
         }
 
+        
         [Test]
-        [TestCase(1, "John", "Doe", 2, "Jane", "Smith")]
-        public void GetAllUsersReturnsAllUsers(int userId, string firstName, string surname, int userId2, string firstName2, string surname2)
+        [TestCase("ed0d17b8-dbc3-4080-8f4a-abe63b9679b9", "John", "Doe", "ab0d17b8-dbc3-4080-8f4a-abe63b9679b9", "Jane", "Smith")]
+
+        public void GetAllUsersReturnsAllUsers(Guid userId, string firstName, string surname, Guid userId2, string firstName2, string surname2)
         {
             //arrange
             UserDTO user1 = new UserDTO { UserId = userId, FirstName = firstName, Surname = surname };
@@ -85,7 +87,7 @@ namespace UserServiceTests
 
             CollectionAssert.AreEquivalent(users, resultCollection);
         }
-
+        
         [Test]
         [TestCase("John", "Doe.com", true)] //invalid email
         [TestCase(null, "", true)] //null user
@@ -116,11 +118,11 @@ namespace UserServiceTests
                 Assert.AreEqual(expectedResult, false);
             }
         }
-
+        
         [Test]
-        [TestCase(10, true)]
+        [TestCase("ab0c17b8-dbc3-4080-8f4a-abe63b9679b9", true)]
         [TestCase(null, true)]
-        public void GenerateUniqueUserIdGeneratesId(int? userId, bool expectedResult)
+        public void GenerateUniqueUserIdGeneratesId(Guid? userId, bool expectedResult)
         {
             // arrange
             UserDTO user = new UserDTO { UserId = userId, Email = "@" }; //email is initialized here to bypass the validation, might wanna refactor so it doesnt need to be maintained
@@ -142,19 +144,19 @@ namespace UserServiceTests
             Assert.NotNull(capturedUser);
             Assert.AreEqual(newIdFlag, expectedResult);
         }
-
+        
         [Test]
-        [TestCase(1, "John", "Doe", true)]
-        [TestCase(999, "Jane", "Doe", false)]
-        public void EditUserReturnsOkResult(int userId, string firstName, string surname, bool expectedResult)
+        [TestCase("ed0d17b8-dbc3-4080-8f4a-abe63b9679b9", "John", "Doe", true)]
+        [TestCase("ab0d17b8-dbc3-4080-8f4a-abe63b9679b9", "Jane", "Doe", false)]
+        public void EditUserReturnsOkResult(Guid userId, string firstName, string surname, bool expectedResult)
         {
             // arrange
             UserDTO? user = new UserDTO { UserId = userId, FirstName = firstName, Surname = surname, Email = "@" };
 
             UserDTO capturedUser = null;
 
-            _userRepositoryStub.Setup(repo => repo.GetUser((int)user.UserId)).Returns(user);
-            _userRepositoryStub.Setup(repo => repo.GetUser(999)).Returns((UserDTO)null); // Nonexistent user ID
+            _userRepositoryStub.Setup(repo => repo.GetUser((Guid)user.UserId)).Returns(user);
+            _userRepositoryStub.Setup(repo => repo.GetUser(Guid.Parse("ab0d17b8-dbc3-4080-8f4a-abe63b9679b9"))).Returns((UserDTO)null); // Nonexistent user ID
             _userRepositoryStub.Setup(repo => repo.UpdateUser(It.IsAny<UserDTO>()))
                                                   .Callback<UserDTO>(u => capturedUser = u);
 
@@ -184,17 +186,17 @@ namespace UserServiceTests
                 Assert.AreEqual("User ID does not exist in the database", badRequestResult.Value);
             }
         }
-
+        
         [Test]
-        [TestCase(1, true)]
-        [TestCase(999, false)]
-        public void DeleteUserReturnsResult(int userId, bool expectedResult)
+        [TestCase("ed0d17b8-dbc3-4080-8f4a-abe63b9679b9", true)]
+        [TestCase("ed0d17b8-dbc3-4080-8f4a-999999999999", false)]
+        public void DeleteUserReturnsResult(Guid userId, bool expectedResult)
         {
             // Arrange
             UserDTO user = new UserDTO { UserId = userId, FirstName = "John", Surname = "Doe" };
 
             _userRepositoryStub.Setup(repo => repo.GetUser(userId)).Returns(user);
-            _userRepositoryStub.Setup(repo => repo.GetUser(999)).Returns((UserDTO)null); // Nonexistent user ID
+            _userRepositoryStub.Setup(repo => repo.GetUser(Guid.Parse("ed0d17b8-dbc3-4080-8f4a-999999999999"))).Returns((UserDTO)null); // Nonexistent user ID
             _userRepositoryStub.Setup(repo => repo.DeleteUser(userId));
 
             // Act
@@ -217,7 +219,7 @@ namespace UserServiceTests
                 Assert.AreEqual(404, notFoundResult.StatusCode);
             }
         }
-
+        
         [Test]
         [TestCase("John", true)]
         [TestCase("Jane", false)]
@@ -251,11 +253,11 @@ namespace UserServiceTests
                 Assert.IsInstanceOf<NotFoundObjectResult>(result);
             }
         }
-
+        
         [Test]
-        [TestCase(1, "oldPassword", true)] // Valid user ID and password
-        [TestCase(999, "oldPassword", false)] // Invalid user ID
-        public void UpdatePasswordReturnsResult(int userId, string password, bool expectedResult)
+        [TestCase("ed0d17b8-dbc3-4080-8f4a-abe63b9679b9", "oldPassword", true)] // Valid user ID and password
+        [TestCase("ed0d17b8-dbc3-4080-8f4a-999999999999", "oldPassword", false)] // Invalid user ID
+        public void UpdatePasswordReturnsResult(Guid userId, string password, bool expectedResult)
         {
             // Arrange
             UserDTO user = new UserDTO { UserId = userId, Password = password };
@@ -263,7 +265,7 @@ namespace UserServiceTests
             UserDTO capturedUser = new UserDTO();
 
             _userRepositoryStub.Setup(repo => repo.GetUser(userId)).Returns(user);
-            _userRepositoryStub.Setup(repo => repo.GetUser(999)).Returns((UserDTO)null); // Nonexistent user ID
+            _userRepositoryStub.Setup(repo => repo.GetUser(Guid.Parse("ed0d17b8-dbc3-4080-8f4a-999999999999"))).Returns((UserDTO)null); // Nonexistent user ID
             _userRepositoryStub.Setup(repo => repo.UpdateUser(It.IsAny<UserDTO>()))
                                                   .Callback<UserDTO>(u => capturedUser = u);
 
@@ -290,6 +292,6 @@ namespace UserServiceTests
                 Assert.AreEqual("User ID does not exist in the database", badRequestResult.Value);
             }
         }
-
+        
     }
 }
