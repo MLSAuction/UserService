@@ -24,7 +24,7 @@ namespace UserService.Repositories
             return _db.Find(_ => true).ToList();
         }
 
-        public UserDTO GetUser(int id)
+        public UserDTO GetUser(Guid id)
         {
             _logger.LogInformation($"Fetching user with ID: {id}");
             var user = _db.Find(u => u.UserId == id).FirstOrDefault();
@@ -61,7 +61,7 @@ namespace UserService.Repositories
             _logger.LogInformation("User updated successfully");
         }
 
-        public void DeleteUser(int id)
+        public void DeleteUser(Guid id)
         {
             _logger.LogInformation($"Deleting user with ID: {id}");
             var filter = Builders<UserDTO>.Filter.Eq(u => u.UserId, id);

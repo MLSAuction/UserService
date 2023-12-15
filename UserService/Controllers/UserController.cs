@@ -48,7 +48,7 @@ namespace UserService.Controllers
         /// <returns></returns>
         [AllowAnonymous]
         [HttpGet("{id}")]
-        public IActionResult GetUser(int id)
+        public IActionResult GetUser(Guid id)
         {
             _logger.LogInformation($"Attempting to retrieve user with ID: {id}");
             UserDTO user = _userService.GetUser(id);
@@ -143,7 +143,7 @@ namespace UserService.Controllers
         /// <param name="inputUser"></param>
         /// <returns></returns>
         [Authorize]
-        [HttpPost] 
+        [HttpPost]
         public IActionResult AddUser([FromBody] UserDTO inputUser)
         {
             UserDTO user;
@@ -201,31 +201,6 @@ namespace UserService.Controllers
             return user;
         }
 
-        private int GenerateUniqueUserId()
-        {
-            int id = Math.Abs(Guid.NewGuid().GetHashCode());
-            _logger.LogInformation($"Generated initial user ID: {id}");
-
-            //While loop to repeatedly check for duplicate ids in db (statistically very unlikely)
-            bool? duplicateFlag = null;
-            while (duplicateFlag != false)
-            {
-                if (_userService.GetUser(id) != null)
-                {
-                    // Handle the case where the ID already exists (e.g., generate a new ID, so it doesnt match an already existing one)
-                    _logger.LogWarning($"Duplicate user ID found: {id}. Generating a new ID.");
-                    id = GenerateUniqueUserId();
-                    duplicateFlag = true;
-                }
-                else
-                {
-                    duplicateFlag = false;
-                }
-            }
-            _logger.LogInformation($"Final unique user ID generated: {id}");
-            return id;
-        }
-
         /// <summary>
         /// Edit user
         /// </summary>
@@ -250,7 +225,7 @@ namespace UserService.Controllers
                 throw new ArgumentException("Invalid email");
             }
 
-            if (_userService.GetUser((int)user.UserId) == null)
+            if (_userService.GetUser((Guid)user.UserId) == null)
             {
                 _logger.LogWarning($"Edit user failed: No user found with ID {user.UserId}");
                 return BadRequest("User ID does not exist in the database");
@@ -269,7 +244,7 @@ namespace UserService.Controllers
         /// <returns></returns>
         [Authorize]
         [HttpPut("updatePassword")]
-        public IActionResult UpdatePassword(int userId, string password)
+        public IActionResult UpdatePassword(Guid userId, string password)
         {
             _logger.LogInformation($"Attempting to update password for user ID: {userId}");
             UserDTO user = _userService.GetUser(userId);
@@ -295,7 +270,7 @@ namespace UserService.Controllers
         /// <returns></returns>
         [Authorize]
         [HttpDelete("{id}")]
-        public IActionResult DeleteUser(int id)
+        public IActionResult DeleteUser(Guid id)
         {
             _logger.LogInformation($"Attempting to delete user with ID: {id}");
             var user = _userService.GetUser(id);
@@ -311,5 +286,34 @@ namespace UserService.Controllers
 
             return Ok("User deleted successfully");
         }
+
+        private Guid GenerateUniqueUserId()
+        {
+            Guid id = Guid.NewGuid();
+            _logger.LogInformation($"Generated initial user ID: {id}");
+
+            // While loop to repeatedly check for duplicate ids in the db (statistically very unlikely)
+            bool duplicateFlag = true;
+            while (duplicateFlag)
+            {
+                if (_userService.GetUser(id) != null)
+                {
+                    // Handle the case where the ID already exists (e.g., generate a new ID, so it doesn't match an already existing one)
+                    _logger.LogWarning($"Duplicate user ID found: {id}. Generating a new ID.");
+                    id = GenerateUniqueUserId();
+                }
+                else
+                {
+                    duplicateFlag = false;
+                }
+            }
+            _logger.LogInformation($"Final unique user ID generated: {id}");
+            return id;
+        }
+
+
+
+
+
     }
 }
