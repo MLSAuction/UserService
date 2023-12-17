@@ -10,11 +10,11 @@ namespace UserService.Repositories.DBContext
         private IMongoClient _client;
         IConfiguration _configuration;
 
-        public MongoDBContext(IConfiguration configuration, Secret<SecretData> secret)
+        public MongoDBContext(IConfiguration configuration)
         {
             _configuration = configuration;
-            _client = new MongoClient(secret.Data.Data["ConnectionString"].ToString());
-            _database = _client.GetDatabase(secret.Data.Data["DatabaseName"].ToString());
+            _client = new MongoClient(Environment.GetEnvironmentVariable("ConnectionString"));
+            _database = _client.GetDatabase(Environment.GetEnvironmentVariable("DatabaseName"));
         }
 
         public IMongoCollection<T> GetCollection<T>(string collectionName)
